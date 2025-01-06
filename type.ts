@@ -1,5 +1,6 @@
-type Room = {
+export type ServerRoom = {
     roomId :string;
+    roomCode :string;
     roundNumber :number;
     playerNumber :number;
     gameMode :GameMode;
@@ -8,34 +9,47 @@ type Room = {
     playerList : PlayerList;
 }
 
-type RoomList = {
-    roomList : Room[];
+export type ClientRoom = {
+    roundNumber :number;
+    playerNumber :number;
+    gameMode :GameMode;
+    bullyTime: boolean;
+    roundTimeLimit :number;
 }
 
-type Player = {
+export type RoomList = {
+    roomList : ServerRoom[];
+}
+
+export type ServerPlayer = {
   name :string;
   role :string;
   avatar :string;
   status :boolean;
 };
 
-type PlayerList = {
-    playerList : Player[];
+export type ClientPlayer = {
+    name :string;
+    avatar :string;
+  };
+
+export type PlayerList = {
+    playerList : ServerPlayer[];
 }
 
-type MostLikelyTo = {
+export type MostLikelyTo = {
     percentageProbabilityChaos: number;
 }
 
-type WouldYouRather = {
+export type WouldYouRather = {
 
 }
 
-type TruthOrDare = {
+export type TruthOrDare = {
 
 }
 
-enum GameMode {
+export enum GameMode {
     "TruthOrDare",
     "WouldYouRather",
     "MostLikelyTo",
