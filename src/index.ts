@@ -1,12 +1,15 @@
 import WebSocket from 'ws';
 import * as dotenv from 'dotenv';
-import {RoomListType} from './type';
+import {RoomListType, CloseWSPlayerType} from './type';
 import {catchError} from "../global";
 import {joinWS} from "./wsFunction/joinWS";
 import {createWS} from "./wsFunction/createWS";
 import {dareWS} from "./wsFunction/dareWS";
+
 const rooms:RoomListType = {roomList: {}};
 const wss = new WebSocket.Server({ port: 6001 });
+const wsPlayerMap = new Map<WebSocket, CloseWSPlayerType>();
+
 dotenv.config();
 
 wss.on('connection', (ws: WebSocket) => {
@@ -21,7 +24,7 @@ wss.on('connection', (ws: WebSocket) => {
                     createWS(ws, data, rooms);
                     break;
                 case 'join':
-                    joinWS(ws, rooms, data);
+                    joinWS(ws, rooms, data, wsPlayerMap);
                     break;
                 case 'dare':
                     dareWS(ws, data);
@@ -36,6 +39,12 @@ wss.on('connection', (ws: WebSocket) => {
     });
 
     ws.on('close', () => {
-        console.log('Client disconnected');
+        const player = wsPlayerMap.get(ws);
+        if (player) {
+            console.log(`Client disconnected: ${player.name}`);
+            wsPlayerMap.delete(ws);
+        } else {
+            console.log('Client disconnected');
+        }
     });
 });

@@ -55,9 +55,13 @@ export type ClientPlayerType = {
     avatar :string;
 };
 
-export type PlayerListType = {
-    playerList : ServerPlayerType[];
-}
+export type CloseWSPlayerType = {
+    name :string;
+    role :string;
+    avatar :string;
+    status :boolean;
+    roomCode :number;
+};
 
 export type MostLikelyToType = {
     percentageProbabilityChaos: number;
