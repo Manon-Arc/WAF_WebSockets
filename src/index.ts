@@ -1,56 +1,41 @@
 import WebSocket from 'ws';
-import {RoomList, ClientRoom, ServerRoom, ClientPlayer, ServerPlayer, PlayerList} from '../type';
-import { randomUUID } from 'crypto';
-
-
-const rooms:RoomList = {roomList: []};
+import * as dotenv from 'dotenv';
+import {RoomListType} from './type';
+import {catchError} from "../global";
+import {joinWS} from "./wsFunction/joinWS";
+import {createWS} from "./wsFunction/createWS";
+import {dareWS} from "./wsFunction/dareWS";
+const rooms:RoomListType = {roomList: {}};
 const wss = new WebSocket.Server({ port: 8080 });
+dotenv.config();
 
 wss.on('connection', (ws: WebSocket) => {
-  console.log('New client connected');
+    console.log('New client connected');
 
-  ws.on('message', (message: string) => {
-    console.log(`Received message: ${message}`);
-    wss.clients.forEach((client) => {
-      client.send(`Server received your message: ${message}`);
-    });
-  });
-
-  ws.on('create', (roomParams: ClientRoom, player: ClientPlayer) => {
-    console.log(`Create room receive: ${roomParams}`);
-    const uuid = randomUUID().toString();
-    let roomCode = Math.floor(1000 + Math.random() * 9000).toString();
-    rooms.roomList.forEach((room) => {
-        while (room.roomCode === roomCode) {
-            roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+    ws.on('message', receiveData => {
+        try {
+            const { type, data }: { type: string, data: any } = JSON.parse(receiveData.toString());
+            console.log(`Received data: ${type}`);
+            switch (type) {
+                case 'create':
+                    createWS(ws, data, rooms);
+                    break;
+                case 'join':
+                    joinWS(ws, rooms, data);
+                    break;
+                case 'dare':
+                    dareWS(ws, data);
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (e) {
+            catchError(ws, e);
         }
     });
-    let playerServer: ServerPlayer = {name: player.name, role: 'host', avatar: player.avatar, status: true};
-    let playerList: PlayerList = {playerList: []};
-    playerList.playerList.push(playerServer);
-    let room:ServerRoom = {
-        roomId:uuid,
-        roomCode: roomCode, 
-        roundNumber: roomParams.roundNumber, 
-        playerNumber: roomParams.playerNumber, 
-        gameMode: roomParams.gameMode, 
-        bullyTime: roomParams.bullyTime, 
-        roundTimeLimit: roomParams.roundTimeLimit, 
-        playerList: playerList
-    };
-    rooms.roomList.push(room); 
-    ws.send(JSON.stringify({ roomCode: roomCode }));
-  });
 
-  ws.on('join', (player : ClientPlayer) => {
-    console.log('Join room receive');
-    let playerServer: ServerPlayer = {name: player.name, role: 'player', avatar: player.avatar, status: true};
-    let playerList: PlayerList = {playerList: []};
-    playerList.playerList.push(playerServer);
-
-  });
-
-  ws.on('close', () => {
-    console.log('Client disconnected');
-  });
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
 });

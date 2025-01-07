@@ -21,8 +21,10 @@
   },
   "homepage": "https://github.com/Manon-Arc/WAF_WebSockets#readme",
   "dependencies": {
+    "@types/ws": "^8.5.13",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
