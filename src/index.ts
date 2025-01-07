@@ -6,7 +6,7 @@ import {joinWS} from "./wsFunction/joinWS";
 import {createWS} from "./wsFunction/createWS";
 import {dareWS} from "./wsFunction/dareWS";
 const rooms:RoomListType = {roomList: {}};
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({ port: 6001 });
 dotenv.config();
 
 wss.on('connection', (ws: WebSocket) => {

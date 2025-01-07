@@ -18,7 +18,7 @@ export type RoomType = {
 
 export type RoomTypeForClient = {
     player: PlayerHostType;
-    roomParams: CreateRoomType;
+    roomParams: RoomParams;
 }
 
 export type JoinRoomType = {
@@ -26,7 +26,7 @@ export type JoinRoomType = {
     roomCode :number;
 };
 
-export type CreateRoomType = {
+export type RoomParams = {
     roundNumber :number;
     playerNumber :number;
     gameMode :GameMode;
