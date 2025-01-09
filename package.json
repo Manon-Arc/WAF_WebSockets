@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/src/index.js",
-    "dev": "nodemon src/index.ts",
-    "deploy": "serve -s build"
+    "start": "serve -s build",
+    "dev": "nodemon src/index.ts"
   },
   "repository": {
     "type": "git",
