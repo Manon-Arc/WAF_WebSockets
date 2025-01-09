@@ -13,8 +13,6 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-RUN npm install -g serve
-
 # Build the TypeScript code
 RUN npm run build
 
@@ -22,4 +20,4 @@ RUN npm run build
 EXPOSE 6001
 
 # Command to run the app
-CMD ["npm", "deploy"]
+CMD ["npm", "start"]
