@@ -5,6 +5,7 @@ import {catchError} from "../global";
 import {joinWS} from "./wsFunction/joinWS";
 import {createWS} from "./wsFunction/createWS";
 import {dareWS} from "./wsFunction/dareWS";
+import {quitRoom} from "./wsFunction/quitRoom";
 
 const rooms:RoomListType = {roomList: {}};
 const wss = new WebSocket.Server({ port: 6001 });
@@ -40,11 +41,6 @@ wss.on('connection', (ws: WebSocket) => {
 
     ws.on('close', () => {
         const player = wsPlayerMap.get(ws);
-        if (player) {
-            console.log(`Client disconnected: ${player.name}`);
-            wsPlayerMap.delete(ws);
-        } else {
-            console.log('Client disconnected');
-        }
+        quitRoom(ws, player, rooms, wsPlayerMap);
     });
 });
