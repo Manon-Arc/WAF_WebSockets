@@ -54,7 +54,7 @@ export type ServerPlayerType = {
 export type ClientPlayerType = {
     name :string;
     avatar :string;
-    token: string;
+    token?: string;
 };
 
 export type CloseWSPlayerType = {

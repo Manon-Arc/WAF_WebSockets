@@ -29,7 +29,7 @@ export function createWS(ws: WebSocket, dataPlayer: any, rooms: RoomListType, ws
         console.log(room)
         console.log(`Voici le token ${token}`)
         rooms.roomList[roomId] = { ...room};
-        ws.send(JSON.stringify({ roomId: roomId }));
+        ws.send(JSON.stringify({ roomId: roomId, token: token }));
     }
     catch (e) {
         catchError(ws, e);
