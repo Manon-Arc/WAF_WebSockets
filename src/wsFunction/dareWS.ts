@@ -9,8 +9,7 @@ export function dareWS(ws: WebSocket, dataPlayer: any) {
             r.json().then(data => {
                 ws.send(data);
             }));
-    }
-    catch (e) {
+    } catch (e) {
         catchError(ws, e);
     }
 }

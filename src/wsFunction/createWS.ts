@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import {TokenGenerator} from "ts-token-generator";
-import {RoomType, RoomListType, ServerPlayerType, RoomTypeForClient, CloseWSPlayerType} from "../type";
+import {CloseWSPlayerType, RoomListType, RoomType, RoomTypeForClient, ServerPlayerType} from "../type";
 import {catchError} from "../../global";
 
 export function createWS(ws: WebSocket, dataPlayer: any, rooms: RoomListType, wsPlayerMap: Map<WebSocket, ServerPlayerType>) {
@@ -12,10 +12,17 @@ export function createWS(ws: WebSocket, dataPlayer: any, rooms: RoomListType, ws
         while (rooms.roomList.hasOwnProperty(roomId)) {
             roomId = Math.floor(1000 + Math.random() * 9000)
         }
-        let playerServer: ServerPlayerType = {name: createRoom.player.name, role: 'host', avatar: createRoom.player.name, status: true, token: token};
+        let playerServer: ServerPlayerType = {
+            name: createRoom.player.name,
+            role: 'host',
+            avatar: createRoom.player.name,
+            status: true,
+            token: token,
+            webSocket: ws
+        };
         let playerList: Array<ServerPlayerType> = [];
         playerList.push(playerServer);
-        let room:RoomType = {
+        let room: RoomType = {
             roomId: roomId,
             roundNumber: createRoom.roomParams.roundNumber,
             playerNumber: createRoom.roomParams.playerNumber,
@@ -28,10 +35,9 @@ export function createWS(ws: WebSocket, dataPlayer: any, rooms: RoomListType, ws
         wsPlayerMap.set(ws, closePlayer);
         console.log(room)
         console.log(`Voici le token ${token}`)
-        rooms.roomList[roomId] = { ...room};
-        ws.send(JSON.stringify({ roomId: roomId, token: token }));
-    }
-    catch (e) {
+        rooms.roomList[roomId] = {...room};
+        ws.send(JSON.stringify({roomId: roomId, token: token}));
+    } catch (e) {
         catchError(ws, e);
     }
 

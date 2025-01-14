@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import WebSocket from "ws";
 
 dotenv.config();
 
@@ -7,13 +8,13 @@ export default {
 }
 
 export type RoomType = {
-    roomId :number;
-    roundNumber :number;
-    playerNumber :number;
-    gameMode :GameMode;
+    roomId: number;
+    roundNumber: number;
+    playerNumber: number;
+    gameMode: GameMode;
     bullyTime: boolean;
-    roundTimeLimit :number;
-    playerList : Array<ServerPlayerType>;
+    roundTimeLimit: number;
+    playerList: Array<ServerPlayerType>;
 }
 
 export type RoomTypeForClient = {
@@ -22,21 +23,21 @@ export type RoomTypeForClient = {
 }
 
 export type JoinRoomType = {
-    player :ClientPlayerType;
-    roomCode :number;
+    player: PlayerType;
+    roomCode: number;
 };
 
 export type RoomParams = {
-    roundNumber :number;
-    playerNumber :number;
-    gameMode :GameMode;
+    roundNumber: number;
+    playerNumber: number;
+    gameMode: GameMode;
     bullyTime: boolean;
-    roundTimeLimit :number;
+    roundTimeLimit: number;
 }
 
 type PlayerHostType = {
-    name :string;
-    avatar :string;
+    name: string;
+    avatar: string;
 };
 
 export interface RoomListType {
@@ -44,39 +45,42 @@ export interface RoomListType {
 }
 
 export type ServerPlayerType = {
-  name :string;
-  role :string;
-  avatar :string;
-  status :boolean;
-  token: string;
+    name: string;
+    role: string;
+    avatar: string;
+    status: boolean;
+    token: string;
+    webSocket: WebSocket;
 };
 
-export type ClientPlayerType = {
-    name :string;
-    avatar :string;
+export type PlayerType = {
+    name: string;
+    avatar: string;
     token?: string;
 };
 
 export type CloseWSPlayerType = {
-    name :string;
-    role :string;
-    avatar :string;
-    status :boolean;
-    roomCode :number;
+    name: string;
+    role: string;
+    avatar: string;
+    status: boolean;
+    roomCode: number;
     token: string;
+    webSocket: WebSocket;
 };
+
+export type ClientPlayerType = {
+    name: string;
+    avatar: string;
+}
 
 export type MostLikelyToType = {
     percentageProbabilityChaos: number;
 }
 
-export type WouldYouRatherType = {
+export type WouldYouRatherType = {}
 
-}
-
-export type TruthOrDareType = {
-
-}
+export type TruthOrDareType = {}
 
 export enum GameMode {
     "TruthOrDare",
