@@ -40,7 +40,7 @@ type PlayerHostType = {
 };
 
 export interface RoomListType {
-    roomList: { [key: number]: RoomType };
+    roomList: Record<number, RoomType>;
 }
 
 export type ServerPlayerType = {
@@ -48,11 +48,13 @@ export type ServerPlayerType = {
   role :string;
   avatar :string;
   status :boolean;
+  token: string;
 };
 
 export type ClientPlayerType = {
     name :string;
     avatar :string;
+    token: string;
 };
 
 export type CloseWSPlayerType = {
@@ -61,6 +63,7 @@ export type CloseWSPlayerType = {
     avatar :string;
     status :boolean;
     roomCode :number;
+    token: string;
 };
 
 export type MostLikelyToType = {

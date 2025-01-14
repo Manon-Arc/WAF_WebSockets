@@ -24,6 +24,7 @@
     "@types/ws": "^8.5.13",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "ts-token-generator": "^1.0.4",
     "ws": "^8.18.0"
   },
   "devDependencies": {

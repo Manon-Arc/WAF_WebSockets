@@ -22,7 +22,7 @@ wss.on('connection', (ws: WebSocket) => {
             console.log(`Received data: ${type}`);
             switch (type) {
                 case 'create':
-                    createWS(ws, data, rooms);
+                    createWS(ws, data, rooms, wsPlayerMap);
                     break;
                 case 'join':
                     joinWS(ws, rooms, data, wsPlayerMap);
