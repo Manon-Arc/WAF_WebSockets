@@ -1,63 +1,82 @@
 import WebSocket from 'ws';
-import {TokenGenerator} from "ts-token-generator";
-import {ClientPlayerType, CloseWSPlayerType, JoinRoomType, RoomListType, ServerPlayerType} from "../type";
+import {InformationJoin, JoinRoomType, ResponseJoin, RoomListType, ServerPlayerType} from "../type";
 import {catchError, sendAllPlayer} from "../../global";
 
-export function joinWS(ws: WebSocket, rooms: RoomListType, data: any, wsPlayerMap: Map<WebSocket, ServerPlayerType>) {
+export function joinWS(ws: WebSocket, rooms: RoomListType, data: any, wssConnection: Map<String, WebSocket>) {
     try {
-        const tokenGen = new TokenGenerator();
-        const token = tokenGen.generate();
-        const dataPlayer: JoinRoomType = data;
-        const player = rooms.roomList[dataPlayer.roomCode].playerList.find((p => p.token === dataPlayer.player.token));
-        console.log(rooms.roomList);
-        if (!Object.keys(rooms.roomList).includes(dataPlayer.roomCode.toString())) {
+        console.info('Joining room');
+        let wasConnect = true;
+
+        const dataPlayer: JoinRoomType = {...data};
+
+        if (!Object.keys(rooms.roomList).includes(dataPlayer.roomCode)) {
             ws.send(JSON.stringify({error: "Room not found"}));
             return;
         }
-        if (rooms.roomList[dataPlayer.roomCode].playerList.length >= rooms.roomList[dataPlayer.roomCode].playerNumber) {
-            if (player && !player.status) {
-                reconnect(ws, rooms, dataPlayer, token, wsPlayerMap);
-                return;
-            }
+
+        const room = rooms.roomList[dataPlayer.roomCode];
+
+        let player = room.playerList.find((p) => p.token === dataPlayer.player.token);
+        if (!player) { 
+            wasConnect = false;
+            player = {...dataPlayer.player, role: 'player'};
+        }
+
+
+        if (room.playerList.filter((player)=>player.status).length >= room.playerNumber) {
+            // ! La room est pleine
             ws.send(JSON.stringify({error: "Room is full"}));
             return;
         }
-        if (player && player.status) {
-            reconnect(ws, rooms, dataPlayer, token, wsPlayerMap);
+
+        player.status = true;
+
+        if (!wasConnect) {
+            rooms.roomList[dataPlayer.roomCode].playerList.push(player);
+        } else {
+            rooms.roomList[dataPlayer.roomCode].playerList = room.playerList.map((p) => {
+                if (p.token === dataPlayer.player.token) {
+                    return player;
+                }
+                return p;
+            });
         }
-        const playerClient: ClientPlayerType = {name: dataPlayer.player.name, avatar: dataPlayer.player.avatar};
-        const playerServer: ServerPlayerType = {
-            name: dataPlayer.player.name,
-            role: 'player',
-            avatar: dataPlayer.player.avatar,
-            status: true,
-            token: token,
-            webSocket: ws
-        };
-        rooms.roomList[dataPlayer.roomCode].playerList.push(playerServer);
-        const closePlayer: CloseWSPlayerType = {...playerServer, roomCode: dataPlayer.roomCode};
-        wsPlayerMap.set(ws, closePlayer);
-        ws.send(JSON.stringify({token: token}));
-        sendAllPlayer(ws, rooms.roomList[dataPlayer.roomCode].playerList, JSON.stringify({player: playerClient}));
-        console.log(`Voici le token ${token}`)
-        console.log({token: token});
+
+
+        const response: ResponseJoin = {
+            type: 'join',
+            data: {
+                room: rooms.roomList[dataPlayer.roomCode]
+            }
+        } 
+ 
+        ws.send(JSON.stringify(response));
+
+        const information: InformationJoin = {
+            type: 'information-join',
+            data: {
+                player: player
+            }
+        }
+        sendAllPlayer(ws, rooms.roomList[dataPlayer.roomCode].playerList, wssConnection, JSON.stringify(information));
+        
         console.log('A person joined the room');
     } catch (e) {
         catchError(ws, e);
     }
 }
 
-function reconnect(ws: WebSocket, rooms: RoomListType, data: JoinRoomType, token: string, wsPlayerMap: Map<WebSocket, ServerPlayerType>) {
-    try {
-        const player = rooms.roomList[data.roomCode].playerList.find((p => p.token === data.player.token));
-        player!.status = true;
-        const closePlayer: CloseWSPlayerType = {...player!, roomCode: data.roomCode};
-        wsPlayerMap.set(ws, closePlayer);
-        ws.send(JSON.stringify({token: token}));
-        console.log(`The player ${data.player.name} reconnected to the room`);
-        console.log(rooms.roomList[data.roomCode].playerList);
-        return;
-    } catch (e) {
-        catchError(ws, e);
-    }
-}
+// function reconnect(ws: WebSocket, rooms: RoomListType, data: JoinRoomType, token: string,/* wsPlayerMap: Map<WebSocket, ServerPlayerType>*/) {
+//     try {
+//         const player = rooms.roomList[data.roomCode].playerList.find((p => p.token === data.player.token));
+//         player!.status = true;
+//         // const closePlayer: CloseWSPlayerType = {...player!, roomCode: data.roomCode};
+//         // wsPlayerMap.set(ws, closePlayer);
+//         ws.send(JSON.stringify({token: token}));
+//         console.log(`The player ${data.player.name} reconnected to the room`);
+//         console.log(rooms.roomList[data.roomCode].playerList);
+//         return;
+//     } catch (e) {
+//         catchError(ws, e);
+//     }
+// }

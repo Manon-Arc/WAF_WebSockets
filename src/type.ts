@@ -7,8 +7,42 @@ export default {
     getDareFilter: process.env.GET_DARE_FILTER,
 }
 
+export type Message = {
+    type: string;
+}
+
+export type ResponseCreate = Message & {
+    data: {
+        room: RoomType;
+    }
+}
+
+export type ResponseJoin = Message & {
+    data: {
+        room: RoomType
+    }
+}
+
+export type InformationJoin = Message & {
+    data: {
+        player: ServerPlayerType;
+    }
+}
+
+export type InformationDisconnect = Message & {
+    data: {
+        player: ServerPlayerType;
+    }
+}
+
+export type ResponseConnection = Message & {
+    data: {
+        token: string;
+    }
+}
+
 export type RoomType = {
-    roomId: number;
+    roomId: string;
     roundNumber: number;
     playerNumber: number;
     gameMode: GameMode;
@@ -17,14 +51,9 @@ export type RoomType = {
     playerList: Array<ServerPlayerType>;
 }
 
-export type RoomTypeForClient = {
-    player: PlayerHostType;
-    roomParams: RoomParams;
-}
-
 export type JoinRoomType = {
     player: PlayerType;
-    roomCode: number;
+    roomCode: string;
 };
 
 export type RoomParams = {
@@ -35,44 +64,25 @@ export type RoomParams = {
     roundTimeLimit: number;
 }
 
-type PlayerHostType = {
-    name: string;
-    avatar: string;
-};
-
 export interface RoomListType {
-    roomList: Record<number, RoomType>;
+    roomList: Record<string, RoomType>;
 }
 
-export type ServerPlayerType = {
-    name: string;
+export type ServerPlayerType = PlayerType & {
     role: string;
-    avatar: string;
-    status: boolean;
-    token: string;
-    webSocket: WebSocket;
 };
 
 export type PlayerType = {
     name: string;
     avatar: string;
     token?: string;
-};
-
-export type CloseWSPlayerType = {
-    name: string;
-    role: string;
-    avatar: string;
     status: boolean;
-    roomCode: number;
-    token: string;
-    webSocket: WebSocket;
 };
 
-export type ClientPlayerType = {
-    name: string;
-    avatar: string;
-}
+
+
+
+
 
 export type MostLikelyToType = {
     percentageProbabilityChaos: number;

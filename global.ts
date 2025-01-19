@@ -7,10 +7,13 @@ export const catchError = (ws: WebSocket, err: unknown) => {
     return;
 }
 
-export const sendAllPlayer = (wsCurrentPlayer: WebSocket, roomPlayerList: Array<ServerPlayerType>, content: string) => {
+export const sendAllPlayer = (wsCurrentPlayer: WebSocket, roomPlayerList: Array<ServerPlayerType>, wssConnection: Map<String, WebSocket>,content: string) => {
     roomPlayerList.forEach((player) => {
-        if (player.webSocket !== wsCurrentPlayer && player.status) {
-            player.webSocket.send(content);
-        }
+
+        if (!player.status || !player.token) return;
+        const wss = wssConnection.get(player.token);
+
+        if(!wss ||wsCurrentPlayer === wss) return;
+        wss?.send(content);
     });
 }

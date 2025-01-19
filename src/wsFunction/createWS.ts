@@ -1,42 +1,51 @@
 import WebSocket from "ws";
-import {TokenGenerator} from "ts-token-generator";
-import {CloseWSPlayerType, RoomListType, RoomType, RoomTypeForClient, ServerPlayerType} from "../type";
+import {PlayerType, ResponseCreate, RoomListType, RoomType, ServerPlayerType} from "../type";
 import {catchError} from "../../global";
 
-export function createWS(ws: WebSocket, dataPlayer: any, rooms: RoomListType, wsPlayerMap: Map<WebSocket, ServerPlayerType>) {
+export function createWS(ws: WebSocket, data: any, rooms: RoomListType, wssConnection: Map<String, WebSocket>) {
     try {
-        const tokenGen = new TokenGenerator();
-        const token = tokenGen.generate();
-        const createRoom: RoomTypeForClient = dataPlayer;
+
+        console.info('Creating room');
+
+        const player: PlayerType = data.player;
+        const roomParams = data.roomParams;
+
+
         let roomId = Math.floor(1000 + Math.random() * 9000)
-        while (rooms.roomList.hasOwnProperty(roomId)) {
+        while (rooms.roomList.hasOwnProperty(roomId.toString())) {
             roomId = Math.floor(1000 + Math.random() * 9000)
         }
-        let playerServer: ServerPlayerType = {
-            name: createRoom.player.name,
+
+        const playerServer: ServerPlayerType = { ...player,
             role: 'host',
-            avatar: createRoom.player.name,
-            status: true,
-            token: token,
-            webSocket: ws
-        };
+            status: true
+        }
+
+
         let playerList: Array<ServerPlayerType> = [];
         playerList.push(playerServer);
+
         let room: RoomType = {
-            roomId: roomId,
-            roundNumber: createRoom.roomParams.roundNumber,
-            playerNumber: createRoom.roomParams.playerNumber,
-            gameMode: createRoom.roomParams.gameMode,
-            bullyTime: createRoom.roomParams.bullyTime,
-            roundTimeLimit: createRoom.roomParams.roundTimeLimit,
+            roomId: roomId.toString(),
+            roundNumber: roomParams.roundNumber,
+            playerNumber: roomParams.playerNumber,
+            gameMode: roomParams.gameMode,
+            bullyTime: roomParams.bullyTime,
+            roundTimeLimit: roomParams.roundTimeLimit,
             playerList: playerList
         };
-        const closePlayer: CloseWSPlayerType = {...playerServer, roomCode: dataPlayer.roomCode};
-        wsPlayerMap.set(ws, closePlayer);
+
         console.log(room)
-        console.log(`Voici le token ${token}`)
         rooms.roomList[roomId] = {...room};
-        ws.send(JSON.stringify({roomId: roomId, token: token}));
+
+        const response: ResponseCreate = {
+            type: 'create',
+            data: {
+                room: room,
+            }
+        }
+
+        ws.send(JSON.stringify(response));
     } catch (e) {
         catchError(ws, e);
     }
