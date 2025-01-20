@@ -4,7 +4,7 @@ import {catchError, sendAllPlayer} from "../../global";
 
 export function joinWS(ws: WebSocket, rooms: RoomListType, data: any, wssConnection: Map<String, WebSocket>) {
     try {
-        console.info('Joining room');
+        console.info('Connexion à une room');
         let wasConnect = true;
 
         const dataPlayer: JoinRoomType = {...data};

@@ -5,10 +5,13 @@ import {catchError} from "../../global";
 export function createWS(ws: WebSocket, data: any, rooms: RoomListType, wssConnection: Map<String, WebSocket>) {
     try {
 
-        console.info('Creating room');
+        console.log("Creation d'une room")
 
         const player: PlayerType = data.player;
         const roomParams = data.roomParams;
+
+        console.table(player)
+        console.table(roomParams)
 
 
         let roomId = Math.floor(1000 + Math.random() * 9000)
@@ -20,6 +23,8 @@ export function createWS(ws: WebSocket, data: any, rooms: RoomListType, wssConne
             role: 'host',
             status: true
         }
+
+        console.table(playerServer)
 
 
         let playerList: Array<ServerPlayerType> = [];
@@ -35,7 +40,7 @@ export function createWS(ws: WebSocket, data: any, rooms: RoomListType, wssConne
             playerList: playerList
         };
 
-        console.log(room)
+        console.table(room)
         rooms.roomList[roomId] = {...room};
 
         const response: ResponseCreate = {
