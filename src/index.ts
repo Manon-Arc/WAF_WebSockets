@@ -18,6 +18,10 @@ const wssConnection = new Map<String, WebSocket>();
 dotenv.config();
 
 wss.on('connection', (ws: WebSocket) => {
+
+    // ! Ici se sont des variables de session WS qui sont spécifique à notre connexion
+
+
     console.log('New client connected');
 
     ws.on('message', receiveData => {
@@ -59,13 +63,12 @@ wss.on('connection', (ws: WebSocket) => {
         if (!token) return;
 
         wssConnection.delete(token);
-
         quitRoom(ws, token, rooms, wssConnection);
     });
 });
 
 
-function connectWs(ws: WebSocket, data: any) {
+function connectWs(ws: WebSocket, data: any): string {
 
     const tokenGen = new TokenGenerator();
     let token = tokenGen.generate();
@@ -73,7 +76,7 @@ function connectWs(ws: WebSocket, data: any) {
     if (data.token) {
         token = data.token;
         reconnectWs(ws, token);
-        return;
+        return token;
     }
 
     wssConnection.set(token, ws);
@@ -88,6 +91,7 @@ function connectWs(ws: WebSocket, data: any) {
 
     ws.send(JSON.stringify(messageConnection));
     console.info(`Player connected with token : ${token}`);
+    return token;
 }
 
 function reconnectWs(ws: WebSocket, token: string) {
