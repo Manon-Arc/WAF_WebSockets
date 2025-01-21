@@ -8,12 +8,10 @@ import {dareWS} from "./wsFunction/dareWS";
 import {quitRoom} from "./wsFunction/quitRoom";
 import { TokenGenerator } from 'ts-token-generator';
 
-const rooms: RoomListType = {roomList: {}};
+export const WSS_CONNECTION = new Map<String, WebSocket>();
+export const PLAYERS = new Map<String, ServerPlayerType>();
+export const ROOMS: RoomListType = {roomList: {}};
 const wss = new WebSocket.Server({port: 6001});
-
-
-const wssConnection = new Map<String, WebSocket>();
-
 
 dotenv.config();
 
@@ -21,32 +19,21 @@ wss.on('connection', (ws: WebSocket) => {
 
     // ! Ici se sont des variables de session WS qui sont spécifique à notre connexion
     let token: string|null;
-    let roomCode: string|null;
-    let player: ServerPlayerType|null;
-    let room: RoomType|null;
-
-
-    console.info('WS : Nouvelle connexion');
 
     ws.on('message', receiveData => {
         try {
             const {type, data}: { type: string, data: any } = JSON.parse(receiveData.toString());
 
-            console.group('Nouveau message');
-            console.log(`Type : ${type}`);
-            console.log(`Data : ${data}`);
-            console.groupEnd();
-
-
             switch (type) {
                 case 'connection':
                     token = connectWs(ws, data);
+                    WSS_CONNECTION.set(token, ws);
                     break;
                 case 'create':
-                    createWS(ws, data, rooms, wssConnection);
+                    createWS(ws, data);
                     break;
                 case 'join':
-                    joinWS(ws, rooms, data, wssConnection);
+                    joinWS(ws, data);
                     break;
                 case 'dare':
                     dareWS(ws, data);
@@ -60,18 +47,8 @@ wss.on('connection', (ws: WebSocket) => {
     });
 
     ws.on('close', () => {
-        let token = null;
-        for (const [key, value] of wssConnection.entries()) {
-            if (value === ws) {
-                token = key;
-                break;
-            }
-        }
-
         if (!token) return;
-
-        wssConnection.delete(token);
-        quitRoom(ws, token, rooms, wssConnection);
+        quitRoom(ws, token, ROOMS);
     });
 });
 
@@ -102,10 +79,7 @@ function connectWs(ws: WebSocket, data: any): string {
     console.log(`Session existante : false`)
     console.log(`Token : ${token}`)
     console.groupEnd()
-
-    wssConnection.set(token, ws);
    
-    
     const messageConnection = {
         type: 'connection',
         data: {
@@ -125,29 +99,20 @@ function connectWs(ws: WebSocket, data: any): string {
  * @returns Le token de l'utilisateur.
  */
 function reconnectWs(ws: WebSocket, token: string) {
-    console.group("ReconnectWS");
-    console.log(`Token : ${token}`);
+    const player = PLAYERS.get(token);
 
-    wssConnection.set(token, ws);
-    let room = null;
-    let player = null;
-
-    for (const r of Object.values(rooms.roomList)) {
-        if( r.playerList.find((p:ServerPlayerType) => p.token === token)){
-            room = r;
-            player = room.playerList.find((p:ServerPlayerType) => p.token === token);
-            break;
-        }
-    }
-
-    if (!room || !player) {
+    if (!player) {
         console.warn(`Session de l'utilisateur ${token} non retrouvé.`)
-        console.groupEnd()
+        return;
+    }
+    player.status = true;
+    
+    const room = ROOMS.roomList[player.roomCode];
+
+    if (!room) {
+        console.warn(`Room de l'utilisateur ${token} non retrouvé.`)
         return;
     }
 
-    console.log(`Room : ${room}`)
-    console.log(`Player : ${player}`)
-
-    joinWS(ws, rooms, {roomCode: room.roomId, player: player}, wssConnection);
+    joinWS(ws, {roomCode: room.roomId, player: {name: player.name, avatar: player.avatar, token: player.token, status: player.status}});
 }

@@ -1,25 +1,27 @@
 import WebSocket from 'ws';
-import {InformationJoin, JoinRoomType, ResponseJoin, RoomListType, ServerPlayerType} from "../type";
+import {InformationJoin, JoinRoomType, ResponseJoin} from "../type";
 import {catchError, sendAllPlayer} from "../../global";
+import { PLAYERS, ROOMS } from '..';
 
-export function joinWS(ws: WebSocket, rooms: RoomListType, data: any, wssConnection: Map<String, WebSocket>) {
+export function joinWS(ws: WebSocket, data: any) {
     try {
-        console.info('Connexion à une room');
-        let wasConnect = true;
-
         const dataPlayer: JoinRoomType = {...data};
 
-        if (!Object.keys(rooms.roomList).includes(dataPlayer.roomCode)) {
+        if (!Object.keys(ROOMS.roomList).includes(dataPlayer.roomCode)) {
             ws.send(JSON.stringify({error: "Room not found"}));
             return;
         }
 
-        const room = rooms.roomList[dataPlayer.roomCode];
+        const room = ROOMS.roomList[dataPlayer.roomCode];
 
         let player = room.playerList.find((p) => p.token === dataPlayer.player.token);
+
+        const isReconnecting = player ? true : false;
+
         if (!player) { 
-            wasConnect = false;
-            player = {...dataPlayer.player, role: 'player'};
+            player = {...dataPlayer.player, role: 'player', roomCode: dataPlayer.roomCode};
+        } else {
+            player.status = true;
         }
 
 
@@ -31,10 +33,10 @@ export function joinWS(ws: WebSocket, rooms: RoomListType, data: any, wssConnect
 
         player.status = true;
 
-        if (!wasConnect) {
-            rooms.roomList[dataPlayer.roomCode].playerList.push(player);
+        if (!isReconnecting) {
+            ROOMS.roomList[dataPlayer.roomCode].playerList.push(player);
         } else {
-            rooms.roomList[dataPlayer.roomCode].playerList = room.playerList.map((p) => {
+            ROOMS.roomList[dataPlayer.roomCode].playerList = room.playerList.map((p) => {
                 if (p.token === dataPlayer.player.token) {
                     return player;
                 }
@@ -46,37 +48,26 @@ export function joinWS(ws: WebSocket, rooms: RoomListType, data: any, wssConnect
         const response: ResponseJoin = {
             type: 'join',
             data: {
-                room: rooms.roomList[dataPlayer.roomCode]
+                host: room.playerList.find((p) => p.role === 'host')!,
+                roomParams: {roundNumber: room.roundNumber, roomCode: room.roomId, playerNumber: room.playerNumber, gameMode: room.gameMode, bullyTime: room.bullyTime, roundTimeLimit: room.roundTimeLimit},
+                playerList: room.playerList
             }
         } 
  
+        PLAYERS.set(player.token!, player);
+
         ws.send(JSON.stringify(response));
 
         const information: InformationJoin = {
             type: 'information-join',
             data: {
-                player: player
+                player: {name: player.name, avatar: player.avatar, status: player.status}
             }
         }
-        sendAllPlayer(ws, rooms.roomList[dataPlayer.roomCode].playerList, wssConnection, JSON.stringify(information));
+        sendAllPlayer(ws, ROOMS.roomList[dataPlayer.roomCode].playerList, JSON.stringify(information));
         
         console.log('A person joined the room');
     } catch (e) {
         catchError(ws, e);
     }
 }
-
-// function reconnect(ws: WebSocket, rooms: RoomListType, data: JoinRoomType, token: string,/* wsPlayerMap: Map<WebSocket, ServerPlayerType>*/) {
-//     try {
-//         const player = rooms.roomList[data.roomCode].playerList.find((p => p.token === data.player.token));
-//         player!.status = true;
-//         // const closePlayer: CloseWSPlayerType = {...player!, roomCode: data.roomCode};
-//         // wsPlayerMap.set(ws, closePlayer);
-//         ws.send(JSON.stringify({token: token}));
-//         console.log(`The player ${data.player.name} reconnected to the room`);
-//         console.log(rooms.roomList[data.roomCode].playerList);
-//         return;
-//     } catch (e) {
-//         catchError(ws, e);
-//     }
-// }

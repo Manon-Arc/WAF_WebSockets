@@ -1,30 +1,23 @@
 import WebSocket from "ws";
 import {PlayerType, ResponseCreate, RoomListType, RoomType, ServerPlayerType} from "../type";
 import {catchError} from "../../global";
+import { PLAYERS, ROOMS } from "..";
 
-export function createWS(ws: WebSocket, data: any, rooms: RoomListType, wssConnection: Map<String, WebSocket>) {
+export function createWS(ws: WebSocket, data: any) {
     try {
-
-        console.log("Creation d'une room")
-
         const player: PlayerType = data.player;
         const roomParams = data.roomParams;
 
-        console.table(player)
-        console.table(roomParams)
-
-
         let roomId = Math.floor(1000 + Math.random() * 9000)
-        while (rooms.roomList.hasOwnProperty(roomId.toString())) {
+        while (ROOMS.roomList.hasOwnProperty(roomId.toString())) {
             roomId = Math.floor(1000 + Math.random() * 9000)
         }
 
         const playerServer: ServerPlayerType = { ...player,
             role: 'host',
-            status: true
+            status: true,
+            roomCode: roomId.toString(),
         }
-
-        console.table(playerServer)
 
 
         let playerList: Array<ServerPlayerType> = [];
@@ -40,16 +33,18 @@ export function createWS(ws: WebSocket, data: any, rooms: RoomListType, wssConne
             playerList: playerList
         };
 
-        console.table(room)
-        rooms.roomList[roomId] = {...room};
+        ROOMS.roomList[roomId] = {...room};
 
         const response: ResponseCreate = {
             type: 'create',
             data: {
-                room: room,
+                host: {name: player.name, avatar: player.avatar, status: true},
+                roomParams: {...roomParams, roomCode: room.roomId},
+                playerList: playerList
             }
         }
 
+        PLAYERS.set(playerServer.token!, playerServer);
         ws.send(JSON.stringify(response));
     } catch (e) {
         catchError(ws, e);
