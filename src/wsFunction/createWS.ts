@@ -22,6 +22,20 @@ export function createWS(ws: WebSocket, data: any) {
 
         let playerList: Array<ServerPlayerType> = [];
         playerList.push(playerServer);
+        
+
+        // ! Get les questions
+        const questions = Array.from({ length: roomParams.roundNumber }, (_, i) => ({
+            q_fr: `${roomParams.gameMode} Question ${i + 1}`,
+            q_en: `${roomParams.gameMode} Question ${i + 1}`,
+            cA_fr: `Réponse A Question ${i + 1}`,
+            cB_fr: `Réponse B Question ${i + 1}`,
+            cA_en: `Answer A Question ${i + 1}`,
+            cB_en: `Answer B Question ${i + 1}`
+        }));
+
+        console.log(questions)
+        
 
         let room: RoomType = {
             roomId: roomId.toString(),
@@ -30,7 +44,8 @@ export function createWS(ws: WebSocket, data: any) {
             gameMode: roomParams.gameMode,
             bullyTime: roomParams.bullyTime,
             roundTimeLimit: roomParams.roundTimeLimit,
-            playerList: playerList
+            playerList: playerList,
+            questionList: questions
         };
 
         ROOMS.roomList[roomId] = {...room};

@@ -59,7 +59,7 @@ export function joinWS(ws: WebSocket, data: any) {
         ws.send(JSON.stringify(response));
 
         const information: InformationJoin = {
-            type: 'information-join',
+            type: isReconnecting ? 'information-reconnect' : 'information-join',
             data: {
                 player: {name: player.name, avatar: player.avatar, status: player.status}
             }

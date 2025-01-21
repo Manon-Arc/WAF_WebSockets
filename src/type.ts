@@ -19,6 +19,13 @@ export type ResponseJoin = Message & {
     data: RoomTypeForClient;
 }
 
+export type InformationQuestion = Message & {
+    data: {
+        question: QuestionType;
+        target: ClientPlayerType | null;
+    }
+}
+
 export type InformationJoin = Message & {
     data: {
         player: ClientPlayerType;
@@ -45,12 +52,22 @@ export type RoomType = {
     bullyTime: boolean;
     roundTimeLimit: number;
     playerList: Array<ServerPlayerType>;
+    questionList: Array<QuestionType>;
 }
 
 export type RoomTypeForClient = {
     host: ClientPlayerType;
     roomParams: RoomParams;
     playerList: Array<ClientPlayerType>;
+}
+
+export type QuestionType = {
+    q_fr: string;
+    q_en: string;
+    cA_fr: string;
+    cB_fr: string;
+    cA_en: string;
+    cB_en: string;
 }
 
 export type JoinRoomType = {

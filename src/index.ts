@@ -7,6 +7,7 @@ import {createWS} from "./wsFunction/createWS";
 import {dareWS} from "./wsFunction/dareWS";
 import {quitRoom} from "./wsFunction/quitRoom";
 import { TokenGenerator } from 'ts-token-generator';
+import { nextQuestion } from './wsFunction/nextQuestion';
 
 export const WSS_CONNECTION = new Map<String, WebSocket>();
 export const PLAYERS = new Map<String, ServerPlayerType>();
@@ -35,6 +36,9 @@ wss.on('connection', (ws: WebSocket) => {
                 case 'join':
                     joinWS(ws, data);
                     break;
+                case 'next':
+                    nextQuestion(token!);
+                    break;
                 case 'dare':
                     dareWS(ws, data);
                     break;
@@ -42,6 +46,7 @@ wss.on('connection', (ws: WebSocket) => {
                     break;
             }
         } catch (e) {
+            console.error(e);
             catchError(ws, e);
         }
     });
