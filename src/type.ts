@@ -12,26 +12,22 @@ export type Message = {
 }
 
 export type ResponseCreate = Message & {
-    data: {
-        room: RoomType;
-    }
+    data: RoomTypeForClient;
 }
 
 export type ResponseJoin = Message & {
-    data: {
-        room: RoomType
-    }
+    data: RoomTypeForClient;
 }
 
 export type InformationJoin = Message & {
     data: {
-        player: ServerPlayerType;
+        player: ClientPlayerType;
     }
 }
 
 export type InformationDisconnect = Message & {
     data: {
-        player: ServerPlayerType;
+        player: ClientPlayerType;
     }
 }
 
@@ -51,12 +47,19 @@ export type RoomType = {
     playerList: Array<ServerPlayerType>;
 }
 
+export type RoomTypeForClient = {
+    host: ClientPlayerType;
+    roomParams: RoomParams;
+    playerList: Array<ClientPlayerType>;
+}
+
 export type JoinRoomType = {
     player: PlayerType;
     roomCode: string;
 };
 
 export type RoomParams = {
+    roomCode: string;
     roundNumber: number;
     playerNumber: number;
     gameMode: GameMode;
@@ -70,14 +73,18 @@ export interface RoomListType {
 
 export type ServerPlayerType = PlayerType & {
     role: string;
+    roomCode: string;
 };
 
-export type PlayerType = {
+export type PlayerType = ClientPlayerType & {
+    token?: string;
+};
+
+export type ClientPlayerType = {
     name: string;
     avatar: string;
-    token?: string;
     status: boolean;
-};
+}
 
 
 
