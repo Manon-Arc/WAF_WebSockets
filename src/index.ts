@@ -53,7 +53,7 @@ wss.on('connection', (ws: WebSocket) => {
 
     ws.on('close', () => {
         if (!token) return;
-        quitRoom(ws, token, ROOMS);
+        quitRoom(ws, token);
     });
 });
 

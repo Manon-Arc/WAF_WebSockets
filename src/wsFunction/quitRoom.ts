@@ -1,9 +1,9 @@
 import WebSocket from 'ws';
 import {InformationDisconnect, RoomListType, RoomType, ServerPlayerType} from '../type';
 import {sendAllPlayer} from "../../global";
-import { PLAYERS, WSS_CONNECTION } from '..';
+import { PLAYERS, ROOMS, WSS_CONNECTION } from '..';
 
-export function quitRoom(ws: WebSocket, token: String, rooms: RoomListType) {
+export function quitRoom(ws: WebSocket, token: String) {
     try {
         WSS_CONNECTION.delete(token);
         const player = PLAYERS.get(token);
@@ -14,7 +14,7 @@ export function quitRoom(ws: WebSocket, token: String, rooms: RoomListType) {
             return;
         }
 
-        const room = rooms.roomList[player.roomCode];
+        const room = ROOMS.roomList[player.roomCode];
         if (!room) {
             ws.send(JSON.stringify({error: "Room not found"}));
             console.log('Room not found');
@@ -37,7 +37,13 @@ export function quitRoom(ws: WebSocket, token: String, rooms: RoomListType) {
         }
 
         sendAllPlayer(ws, room.playerList, JSON.stringify(information));
+
+        if (!ROOMS.roomList[player.roomCode].playerList.find((p: ServerPlayerType)=> p.status)) {
+            delete ROOMS.roomList[player.roomCode];
+        }
         console.log('A person left the room');
+
+        console.table(ROOMS.roomList)
     } catch (e) {
         console.error(e);
         ws.send(JSON.stringify({error: "Internal server error"}));
