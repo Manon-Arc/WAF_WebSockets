@@ -116,8 +116,11 @@ export type WouldYouRatherType = {}
 
 export type TruthOrDareType = {}
 
+export type NeverHaveIType = {}
+
 export enum GameMode {
     "TruthOrDare",
     "WouldYouRather",
     "MostLikelyTo",
+    "NeverHaveI"
 }
