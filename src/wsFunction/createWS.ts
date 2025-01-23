@@ -33,8 +33,6 @@ export function createWS(ws: WebSocket, data: any) {
             cA_en: `Answer A Question ${i + 1}`,
             cB_en: `Answer B Question ${i + 1}`
         }));
-
-        console.log(questions)
         
 
         let room: RoomType = {
@@ -45,7 +43,10 @@ export function createWS(ws: WebSocket, data: any) {
             bullyTime: roomParams.bullyTime,
             roundTimeLimit: roomParams.roundTimeLimit,
             playerList: playerList,
-            questionList: questions
+            questionList: questions,
+            currentQuestion: null,
+            playersChoice: null,
+            questionTarget: null,
         };
 
         ROOMS.roomList[roomId] = {...room};

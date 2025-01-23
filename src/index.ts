@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import * as dotenv from 'dotenv';
-import {RoomListType, RoomType, ServerPlayerType} from './type';
+import {ClientPlayerType, PlayerChoiceType, RoomListType, RoomType, ServerPlayerType} from './type';
 import {catchError} from "../global";
 import {joinWS} from "./wsFunction/joinWS";
 import {createWS} from "./wsFunction/createWS";
@@ -38,6 +38,48 @@ wss.on('connection', (ws: WebSocket) => {
                     break;
                 case 'next':
                     nextQuestion(token!);
+                    break;
+                case 'choice':
+                    // Ajout du choix 
+                    const player = PLAYERS.get(token!);
+                    if (!player) {
+                        console.error('Player non reconnu');
+                        break;
+                    }
+                    const room = ROOMS.roomList[player!.roomCode];
+                    if (!room) {
+                        console.error('Aucune room associé au player');
+                        break;
+                    }
+                    room.playersChoice?.push({
+                        player: {
+                            name: data.player.name,
+                            avatar: data.player.avatar,
+                            status: data.player.status
+                        },
+                        choice: data.choice
+                    })
+                    
+                    console.table(room.playersChoice);
+                    console.table(room.playerList);
+
+                    if (room.questionTarget?.every((p: ClientPlayerType)=> !p.status || room.playersChoice?.find((c: PlayerChoiceType)=>c.player.name == p.name))) {
+                        // envoie un message pour indiqué que tous le monde a fait son choix
+                        for(const p of room.playerList) {
+                            if (p.status){
+                                if (!p.token) continue;
+                                const wsPlayer = WSS_CONNECTION.get(p.token!);
+                                if (!wsPlayer) continue;
+                                wsPlayer.send(JSON.stringify({
+                                    type: 'result',
+                                    data: {
+                                        choice: room.playersChoice,
+                                    }
+                                }));
+
+                            }
+                        }
+                    }
                     break;
                 case 'dare':
                     dareWS(ws, data);

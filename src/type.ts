@@ -22,7 +22,7 @@ export type ResponseJoin = Message & {
 export type InformationQuestion = Message & {
     data: {
         question: QuestionType;
-        target: ClientPlayerType | null;
+        target: ClientPlayerType[] | null;
     }
 }
 
@@ -53,6 +53,14 @@ export type RoomType = {
     roundTimeLimit: number;
     playerList: Array<ServerPlayerType>;
     questionList: Array<QuestionType>;
+    currentQuestion: QuestionType | null;
+    playersChoice:Array<PlayerChoiceType> | null;
+    questionTarget: Array<ClientPlayerType> | null;
+}
+
+export type PlayerChoiceType = {
+    player: PlayerType;
+    choice: number;
 }
 
 export type RoomTypeForClient = {
