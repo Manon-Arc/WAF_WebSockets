@@ -8,7 +8,7 @@ export const catchError = (ws: WebSocket, err: unknown) => {
     return;
 }
 
-export const sendAllPlayer = (wsCurrentPlayer: WebSocket, roomPlayerList: Array<ServerPlayerType>, content: string) => {
+export const sendAllPlayer = (wsCurrentPlayer: WebSocket | null, roomPlayerList: Array<ServerPlayerType>, content: string) => {
     roomPlayerList.forEach((player) => {
 
         if (!player.status || !player.token) return;

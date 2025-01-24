@@ -19,6 +19,16 @@ export type ResponseJoin = Message & {
     data: RoomTypeForClient;
 }
 
+export type InformationUpdate = Message & {
+    data: RoomParams;
+}
+
+export type InformationNameChange = Message & {
+    data: {
+        name: string
+    }
+}
+
 export type InformationQuestion = Message & {
     data: {
         question: QuestionType;

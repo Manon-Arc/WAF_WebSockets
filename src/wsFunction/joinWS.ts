@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import {InformationJoin, JoinRoomType, ResponseJoin} from "../type";
+import {InformationJoin, InformationNameChange, JoinRoomType, ResponseJoin} from "../type";
 import {catchError, sendAllPlayer} from "../../global";
 import { PLAYERS, ROOMS } from '..';
 
@@ -14,21 +14,38 @@ export function joinWS(ws: WebSocket, data: any) {
 
         const room = ROOMS.roomList[dataPlayer.roomCode];
 
+        console.table(room.playerList);
+
+
+
         let player = room.playerList.find((p) => p.token === dataPlayer.player.token);
 
         const isReconnecting = player ? true : false;
 
-        if (!player) { 
-            player = {...dataPlayer.player, role: 'player', roomCode: dataPlayer.roomCode};
-        } else {
-            player.status = true;
-        }
+        const peopleConnected = room.playerList.filter((player)=>player.status).length;
 
-
-        if (room.playerList.filter((player)=>player.status).length >= room.playerNumber) {
+        if (peopleConnected >= room.playerNumber) {
             // ! La room est pleine
             ws.send(JSON.stringify({error: "Room is full"}));
+            console.log('la room est pleine')
             return;
+        }
+
+        if (!player) { 
+            if (room.playerList.find((p)=>p.name == dataPlayer.player.name)){
+                console.warn('Nom du joueur déjà pris');
+                dataPlayer.player.name = dataPlayer.player.name + "'junior";
+
+                const message: InformationNameChange = {
+                    type: 'information-namechange',
+                    data: {
+                        name: dataPlayer.player.name,
+                    }
+                } 
+
+                ws?.send(JSON.stringify(message));
+            }
+            player = {...dataPlayer.player, role: 'player', roomCode: dataPlayer.roomCode};
         }
 
         player.status = true;

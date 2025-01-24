@@ -60,6 +60,9 @@ export function createWS(ws: WebSocket, data: any) {
             }
         }
 
+        console.log('Nouvelle room')
+        console.table(room)
+
         PLAYERS.set(playerServer.token!, playerServer);
         ws.send(JSON.stringify(response));
     } catch (e) {

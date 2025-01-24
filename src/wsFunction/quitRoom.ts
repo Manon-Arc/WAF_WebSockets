@@ -42,8 +42,6 @@ export function quitRoom(ws: WebSocket, token: String) {
             delete ROOMS.roomList[player.roomCode];
         }
         console.log('A person left the room');
-
-        console.table(ROOMS.roomList)
     } catch (e) {
         console.error(e);
         ws.send(JSON.stringify({error: "Internal server error"}));
