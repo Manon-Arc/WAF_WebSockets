@@ -9,6 +9,7 @@ import {quitRoom} from "./wsFunction/quitRoom";
 import { TokenGenerator } from 'ts-token-generator';
 import { nextQuestion } from './wsFunction/nextQuestion';
 import { updateRoom } from './wsFunction/room';
+import { leaveRoom } from './wsFunction/leaveWS';
 
 export const WSS_CONNECTION = new Map<String, WebSocket>();
 export const PLAYERS = new Map<String, ServerPlayerType>();
@@ -38,6 +39,9 @@ wss.on('connection', (ws: WebSocket) => {
                     break;
                 case 'join':
                     joinWS(ws, data);
+                    break;
+                case 'leave':
+                    leaveRoom(token!);
                     break;
                 case 'next':
                     nextQuestion(token!);
