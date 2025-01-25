@@ -33,6 +33,7 @@ export type InformationQuestion = Message & {
     data: {
         question: QuestionType;
         target: ClientPlayerType[] | null;
+        isLastQuestion: boolean;
     }
 }
 

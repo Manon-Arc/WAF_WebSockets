@@ -40,7 +40,28 @@ export function quitRoom(ws: WebSocket, token: String) {
 
         if (!ROOMS.roomList[player.roomCode].playerList.find((p: ServerPlayerType)=> p.status)) {
             delete ROOMS.roomList[player.roomCode];
+            return;
         }
+
+        if (player.role == "host") {
+            player.role = "player"
+            let newHost =  room.playerList.find((p)=>p.status);
+            newHost!.role = "host";
+    
+            const information = {
+                type: 'information-newhost',
+                data: {
+                    player: {
+                        name: newHost!.name,
+                        avatar: newHost!.avatar,
+                        status: newHost!.status
+                    }
+                }
+            }
+            sendAllPlayer(null, room.playerList, JSON.stringify(information));
+            console.warn("L'host c'est déconnecter");
+        }
+
         console.log('A person left the room');
     } catch (e) {
         console.error(e);

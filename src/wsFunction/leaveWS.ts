@@ -30,7 +30,30 @@ export function leaveRoom(token: String) {
         }
     }
 
+    if (!ROOMS.roomList[player.roomCode].playerList.find((p: ServerPlayerType)=> p.status)) {
+        delete ROOMS.roomList[player.roomCode];
+    }
+
     sendAllPlayer(ws, room.playerList, JSON.stringify(information));
+
+    if (player.role == "host") {
+        let newHost =  room.playerList.find((p)=>p.status);
+        newHost!.role = "host";
+
+
+        const information = {
+            type: 'information-newhost',
+            data: {
+                player: {
+                    name: newHost!.name,
+                    avatar: newHost!.avatar,
+                    status: newHost!.status
+                }
+            }
+        }
+        sendAllPlayer(null, room.playerList, JSON.stringify(information));
+        console.warn("L'host c'est déconnecter");
+    }
 
     player.role = "";
     player.roomCode = "0000";

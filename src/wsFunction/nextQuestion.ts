@@ -34,7 +34,8 @@ export function nextQuestion(token: string) {
             type: 'information-question',
             data: {
                 question: question,
-                target: target
+                target: target,
+                isLastQuestion: room.questionList.length == 0,
             }
         }
 

@@ -1,14 +1,14 @@
 import WebSocket from 'ws';
 import * as dotenv from 'dotenv';
 import {ClientPlayerType, PlayerChoiceType, RoomListType, RoomType, ServerPlayerType} from './type';
-import {catchError} from "../global";
+import {catchError, sendAllPlayer} from "../global";
 import {joinWS} from "./wsFunction/joinWS";
 import {createWS} from "./wsFunction/createWS";
 import {dareWS} from "./wsFunction/dareWS";
 import {quitRoom} from "./wsFunction/quitRoom";
 import { TokenGenerator } from 'ts-token-generator';
 import { nextQuestion } from './wsFunction/nextQuestion';
-import { updateRoom } from './wsFunction/room';
+import { restartRoom, updateRoom } from './wsFunction/room';
 import { leaveRoom } from './wsFunction/leaveWS';
 
 export const WSS_CONNECTION = new Map<String, WebSocket>();
@@ -48,7 +48,10 @@ wss.on('connection', (ws: WebSocket) => {
                     break;
                 case 'update':
                     updateRoom(token!, data);
-                    break; 
+                    break;
+                case 'restart':
+                    restartRoom(token!);
+                    break;
                 case 'choice':
                     // Ajout du choix 
                     const player = PLAYERS.get(token!);
@@ -75,20 +78,12 @@ wss.on('connection', (ws: WebSocket) => {
 
                     if (room.questionTarget?.every((p: ClientPlayerType)=> !p.status || room.playersChoice?.find((c: PlayerChoiceType)=>c.player.name == p.name))) {
                         // envoie un message pour indiqué que tous le monde a fait son choix
-                        for(const p of room.playerList) {
-                            if (p.status){
-                                if (!p.token) continue;
-                                const wsPlayer = WSS_CONNECTION.get(p.token!);
-                                if (!wsPlayer) continue;
-                                wsPlayer.send(JSON.stringify({
-                                    type: 'result',
-                                    data: {
-                                        choice: room.playersChoice,
-                                    }
-                                }));
-
+                        sendAllPlayer(null, room.playerList,JSON.stringify({
+                            type: 'result',
+                            data: {
+                                choice: room.playersChoice,
                             }
-                        }
+                        }) );
                     }
                     break;
                 case 'dare':
