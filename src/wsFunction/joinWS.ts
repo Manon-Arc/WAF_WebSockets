@@ -18,8 +18,6 @@ export function joinWS(ws: WebSocket, data: any) {
 
         console.table(room.playerList);
 
-
-
         let player = room.playerList.find((p) => p.token === dataPlayer.player.token);
 
         console.table(player);
@@ -73,7 +71,7 @@ export function joinWS(ws: WebSocket, data: any) {
             type: 'join',
             data: {
                 host: room.playerList.find((p) => p.role === 'host')!,
-                roomParams: {roundNumber: room.roundNumber, roomCode: room.roomId, playerNumber: room.playerNumber, gameMode: room.gameMode, bullyTime: room.bullyTime, roundTimeLimit: room.roundTimeLimit},
+                roomParams: {roundNumber: room.roundNumber, roomCode: room.roomId, playerNumber: room.playerNumber, gameMode: room.gameMode, difficulty: room.difficulty, bullyTime: room.bullyTime, roundTimeLimit: room.roundTimeLimit},
                 playerList: room.playerList
             }
         } 

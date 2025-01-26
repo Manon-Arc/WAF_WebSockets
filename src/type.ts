@@ -61,6 +61,7 @@ export type RoomType = {
     roundNumber: number;
     playerNumber: number;
     gameMode: GameMode;
+    difficulty: Difficulty;
     bullyTime: boolean;
     roundTimeLimit: number;
     playerList: Array<ServerPlayerType>;
@@ -100,6 +101,7 @@ export type RoomParams = {
     roundNumber: number;
     playerNumber: number;
     gameMode: GameMode;
+    difficulty: Difficulty;
     bullyTime: boolean;
     roundTimeLimit: number;
 }
@@ -124,10 +126,6 @@ export type ClientPlayerType = {
 }
 
 
-
-
-
-
 export type MostLikelyToType = {
     percentageProbabilityChaos: number;
 }
@@ -143,4 +141,9 @@ export enum GameMode {
     "WouldYouRather",
     "MostLikelyTo",
     "NeverHaveI"
+}
+
+export enum Difficulty {
+    "Hot",
+    "Soft"
 }

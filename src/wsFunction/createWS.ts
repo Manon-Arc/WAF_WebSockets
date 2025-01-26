@@ -1,9 +1,10 @@
 import WebSocket from "ws";
-import {PlayerType, ResponseCreate, RoomListType, RoomType, ServerPlayerType} from "../type";
+import {GameMode, PlayerType, QuestionType, ResponseCreate, RoomListType, RoomType, ServerPlayerType} from "../type";
 import {catchError} from "../../global";
 import { PLAYERS, ROOMS } from "..";
+import {fetchQuestions, fetchQuestionsTruthOrDare} from "../apiFunction/request";
 
-export function createWS(ws: WebSocket, data: any) {
+export async function createWS(ws: WebSocket, data: any) {
     try {
         const player: PlayerType = data.player;
         const roomParams = data.roomParams;
@@ -25,7 +26,7 @@ export function createWS(ws: WebSocket, data: any) {
         
 
         // ! Get les questions
-        const questions = Array.from({ length: roomParams.roundNumber }, (_, i) => ({
+        const questions1 = Array.from({ length: roomParams.roundNumber }, (_, i) => ({
             q_fr: `${roomParams.gameMode} Question ${i + 1}`,
             q_en: `${roomParams.gameMode} Question ${i + 1}`,
             cA_fr: `Réponse A Question ${i + 1}`,
@@ -33,13 +34,20 @@ export function createWS(ws: WebSocket, data: any) {
             cA_en: `Answer A Question ${i + 1}`,
             cB_en: `Answer B Question ${i + 1}`
         }));
-        
+
+        let questions:Array<QuestionType> = [];
+        if (roomParams.gameMode == GameMode[+GameMode.TruthOrDare]) {
+            questions = await fetchQuestionsTruthOrDare(roomParams.difficulty, roomParams.roundNumber);
+        } else {
+            questions = await fetchQuestions(roomParams.gameMode, roomParams.difficulty, roomParams.roundNumber);
+        }
 
         let room: RoomType = {
             roomId: roomId.toString(),
             roundNumber: roomParams.roundNumber,
             playerNumber: roomParams.playerNumber,
             gameMode: roomParams.gameMode,
+            difficulty: roomParams.difficulty,
             bullyTime: roomParams.bullyTime,
             roundTimeLimit: roomParams.roundTimeLimit,
             playerList: playerList,
