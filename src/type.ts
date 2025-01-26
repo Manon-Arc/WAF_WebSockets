@@ -144,3 +144,8 @@ export enum GameMode {
     "MostLikelyTo",
     "NeverHaveI"
 }
+
+export enum ErrorType {
+    roomFull = "Room is full",
+    roomNotFound = "Room not found",
+}
