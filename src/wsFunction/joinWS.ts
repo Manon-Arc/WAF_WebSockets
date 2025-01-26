@@ -5,7 +5,9 @@ import { PLAYERS, ROOMS } from '..';
 
 export function joinWS(ws: WebSocket, data: any) {
     try {
+        console.warn("Join ++++++++++++++++++++++++++++++++++++++++++")
         const dataPlayer: JoinRoomType = {...data};
+        console.table(dataPlayer);
 
         if (!Object.keys(ROOMS.roomList).includes(dataPlayer.roomCode)) {
             ws.send(JSON.stringify({error: "Room not found"}));
@@ -19,6 +21,8 @@ export function joinWS(ws: WebSocket, data: any) {
 
 
         let player = room.playerList.find((p) => p.token === dataPlayer.player.token);
+
+        console.table(player);
 
         const isReconnecting = player ? true : false;
 
@@ -34,7 +38,10 @@ export function joinWS(ws: WebSocket, data: any) {
         if (!player) { 
             if (room.playerList.find((p)=>p.name == dataPlayer.player.name)){
                 console.warn('Nom du joueur déjà pris');
-                dataPlayer.player.name = dataPlayer.player.name + "'junior";
+
+                do {
+                    dataPlayer.player.name = dataPlayer.player.name + "'junior";
+                } while(room.playerList.find((p)=>p.name == dataPlayer.player.name))
 
                 const message: InformationNameChange = {
                     type: 'information-namechange',
@@ -83,6 +90,7 @@ export function joinWS(ws: WebSocket, data: any) {
         }
         sendAllPlayer(ws, ROOMS.roomList[dataPlayer.roomCode].playerList, JSON.stringify(information));
         
+        console.table(room.playerList);
         console.log('A person joined the room');
     } catch (e) {
         catchError(ws, e);

@@ -44,9 +44,15 @@ export function quitRoom(ws: WebSocket, token: String) {
         }
 
         if (player.role == "host") {
+            console.log('avazna')
+            console.table(room.playerList);
             player.role = "player"
             let newHost =  room.playerList.find((p)=>p.status);
             newHost!.role = "host";
+
+            console.log('apres')
+
+            console.table(room.playerList);
     
             const information = {
                 type: 'information-newhost',

@@ -34,6 +34,7 @@ export type InformationQuestion = Message & {
         question: QuestionType;
         target: ClientPlayerType[] | null;
         isLastQuestion: boolean;
+        gameMode: GameMode;
     }
 }
 

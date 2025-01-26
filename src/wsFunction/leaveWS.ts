@@ -4,9 +4,8 @@ import { PLAYERS, ROOMS, WSS_CONNECTION } from '..';
 
 export function leaveRoom(token: String) {
     const player = PLAYERS.get(token);
-    const ws = WSS_CONNECTION.get(token);
 
-    if (!player || !ws) {
+    if (!player) {
         console.warn('Pas de session utilisateur');
         return;
     }
@@ -17,7 +16,7 @@ export function leaveRoom(token: String) {
         return;
     }
 
-    room.playerList = room.playerList.filter((p:ServerPlayerType)=> p.token != player.token);
+    room.playerList = room.playerList.filter((p:ServerPlayerType)=> p.token != token);
     
     const information: InformationDisconnect = {
         type: 'information-leave',
@@ -34,7 +33,7 @@ export function leaveRoom(token: String) {
         delete ROOMS.roomList[player.roomCode];
     }
 
-    sendAllPlayer(ws, room.playerList, JSON.stringify(information));
+    sendAllPlayer(null, room.playerList, JSON.stringify(information));
 
     if (player.role == "host") {
         let newHost =  room.playerList.find((p)=>p.status);
@@ -52,9 +51,13 @@ export function leaveRoom(token: String) {
             }
         }
         sendAllPlayer(null, room.playerList, JSON.stringify(information));
-        console.warn("L'host c'est déconnecter");
+        console.warn("L'host s'est déconnecté");
     }
 
+
+    console.table(room.playerList);
+
     player.role = "";
-    player.roomCode = "0000";
+    player.roomCode = "";
+    console.table(player);
 }

@@ -46,6 +46,25 @@ wss.on('connection', (ws: WebSocket) => {
                 case 'next':
                     nextQuestion(token!);
                     break;
+                case 'time-end':
+                    const playert = PLAYERS.get(token!);
+                    if (!playert) {
+                        console.error('Player non reconnu');
+                        break;
+                    }
+                    const roomt = ROOMS.roomList[playert!.roomCode];
+                    if (!roomt) {
+                        console.error('Aucune room associé au player');
+                        break;
+                    }
+                    sendAllPlayer(null, roomt.playerList,JSON.stringify({
+                        type: 'result',
+                        data: {
+                            choice: roomt.playersChoice,
+                        }
+                    }) );
+                    
+                    break;
                 case 'update':
                     updateRoom(token!, data);
                     break;
@@ -157,6 +176,9 @@ function reconnectWs(ws: WebSocket, token: string) {
         console.warn(`Session de l'utilisateur ${token} non retrouvé.`)
         return;
     }
+
+    ws.send(JSON.stringify({type: 'identity', data: {name: player.name, avatar: player.avatar, token: player.token}}));
+
     
     const room = ROOMS.roomList[player.roomCode];
 

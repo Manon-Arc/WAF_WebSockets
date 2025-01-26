@@ -36,6 +36,7 @@ export function nextQuestion(token: string) {
                 question: question,
                 target: target,
                 isLastQuestion: room.questionList.length == 0,
+                gameMode: room.gameMode
             }
         }
 
