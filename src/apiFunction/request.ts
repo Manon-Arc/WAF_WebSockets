@@ -43,7 +43,7 @@ export async function fetchQuestions(gameMode: string, difficulty: string, numbe
         console.log("Fetched questions:", formattedQuestions);
         return formattedQuestions;
     } catch (error) {
-        console.error("Erreur lors de la récupération des questions :", error);
+        console.error("Erreur lors de la récupération des questions pour fetchQuestions :", error);
         return [];
     }
 }
@@ -53,7 +53,7 @@ export async function fetchQuestionsTruthOrDare(
     difficulty: string,
     numberOfQuestions: number
 ): Promise<QuestionType[]> {
-    // try {
+    try {
         // Récupérer les questions "Truth"
         const truthApiUrl = getApiUrlForGameMode("Truth", difficulty, numberOfQuestions);
         console.log("truthApiUrl", truthApiUrl);
@@ -87,8 +87,8 @@ export async function fetchQuestionsTruthOrDare(
 
         console.log("Fetched Truth or Dare questions:", formattedQuestions);
         return formattedQuestions;
-    // } catch (error) {
-    //     console.error("Erreur lors de la récupération des questions :", error);
-    //     return [];
-    // }
+    } catch (error) {
+        console.error("Erreur lors de la récupération des questions pour fetchQuestionsTruthOrDare :", error);
+        return [];
+    }
 }
