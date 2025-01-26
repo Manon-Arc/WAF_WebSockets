@@ -1,16 +1,14 @@
 import WebSocket from 'ws';
-import {InformationJoin, InformationNameChange, JoinRoomType, ResponseJoin} from "../type";
+import {ErrorType, InformationJoin, InformationNameChange, JoinRoomType, ResponseJoin} from "../type";
 import {catchError, sendAllPlayer} from "../../global";
 import { PLAYERS, ROOMS } from '..';
 
 export function joinWS(ws: WebSocket, data: any) {
     try {
-        console.warn("Join ++++++++++++++++++++++++++++++++++++++++++")
         const dataPlayer: JoinRoomType = {...data};
-        console.table(dataPlayer);
 
         if (!Object.keys(ROOMS.roomList).includes(dataPlayer.roomCode)) {
-            ws.send(JSON.stringify({error: "Room not found"}));
+            ws.send(JSON.stringify({type: "error", data: ErrorType.roomNotFound}));
             return;
         }
 
@@ -28,8 +26,7 @@ export function joinWS(ws: WebSocket, data: any) {
 
         if (peopleConnected >= room.playerNumber) {
             // ! La room est pleine
-            ws.send(JSON.stringify({error: "Room is full"}));
-            console.log('la room est pleine')
+            ws.send(JSON.stringify({type: "error", data: ErrorType.roomFull}));
             return;
         }
 

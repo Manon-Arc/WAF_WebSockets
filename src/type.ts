@@ -147,3 +147,8 @@ export enum Difficulty {
     "Hot",
     "Soft"
 }
+
+export enum ErrorType {
+    roomFull = "Room is full",
+    roomNotFound = "Room not found",
+}
