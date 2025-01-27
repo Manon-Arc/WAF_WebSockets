@@ -25,16 +25,6 @@ export async function createWS(ws: WebSocket, data: any) {
         playerList.push(playerServer);
         
 
-        // ! Get les questions
-        const questions1 = Array.from({ length: roomParams.roundNumber }, (_, i) => ({
-            q_fr: `${roomParams.gameMode} Question ${i + 1}`,
-            q_en: `${roomParams.gameMode} Question ${i + 1}`,
-            cA_fr: `Réponse A Question ${i + 1}`,
-            cB_fr: `Réponse B Question ${i + 1}`,
-            cA_en: `Answer A Question ${i + 1}`,
-            cB_en: `Answer B Question ${i + 1}`
-        }));
-
         let questions:Array<QuestionType> = [];
         if (roomParams.gameMode == GameMode[+GameMode.TruthOrDare]) {
             questions = await fetchQuestionsTruthOrDare(roomParams.difficulty, roomParams.roundNumber);

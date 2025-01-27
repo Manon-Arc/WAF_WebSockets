@@ -4,7 +4,6 @@ import {ClientPlayerType, PlayerChoiceType, RoomListType, RoomType, ServerPlayer
 import {catchError, sendAllPlayer} from "../global";
 import {joinWS} from "./wsFunction/joinWS";
 import {createWS} from "./wsFunction/createWS";
-import {dareWS} from "./wsFunction/dareWS";
 import {quitRoom} from "./wsFunction/quitRoom";
 import { TokenGenerator } from 'ts-token-generator';
 import { nextQuestion } from './wsFunction/nextQuestion';
@@ -91,9 +90,6 @@ wss.on('connection', (ws: WebSocket) => {
                         },
                         choice: data.choice
                     })
-                    
-                    console.table(room.playersChoice);
-                    console.table(room.playerList);
 
                     if (room.questionTarget?.every((p: ClientPlayerType)=> !p.status || room.playersChoice?.find((c: PlayerChoiceType)=>c.player.name == p.name))) {
                         // envoie un message pour indiqué que tous le monde a fait son choix
@@ -104,9 +100,6 @@ wss.on('connection', (ws: WebSocket) => {
                             }
                         }) );
                     }
-                    break;
-                case 'dare':
-                    dareWS(ws, data);
                     break;
                 default:
                     break;

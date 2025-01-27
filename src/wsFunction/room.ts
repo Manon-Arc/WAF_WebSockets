@@ -1,8 +1,9 @@
 import { PLAYERS, ROOMS } from "..";
 import { sendAllPlayer } from "../../global";
-import { InformationUpdate } from "../type";
+import { fetchQuestions, fetchQuestionsTruthOrDare } from "../apiFunction/request";
+import { GameMode, InformationUpdate, QuestionType } from "../type";
 
-export function updateRoom(token: string, data: any) {
+export async function updateRoom(token: string, data: any){
         const roomParams = data.roomParams;
         const player = PLAYERS.get(token);
 
@@ -19,18 +20,16 @@ export function updateRoom(token: string, data: any) {
         }
 
 
-        // ! Get les questions
-        const questions = Array.from({ length: roomParams.roundNumber }, (_, i) => ({
-            q_fr: `${roomParams.gameMode} Question ${i + 1}`,
-            q_en: `${roomParams.gameMode} Question ${i + 1}`,
-            cA_fr: `Réponse A Question ${i + 1}`,
-            cB_fr: `Réponse B Question ${i + 1}`,
-            cA_en: `Answer A Question ${i + 1}`,
-            cB_en: `Answer B Question ${i + 1}`
-        }));
+        let questions:Array<QuestionType> = [];
+        if (roomParams.gameMode == GameMode[+GameMode.TruthOrDare]) {
+            questions = await fetchQuestionsTruthOrDare(roomParams.difficulty, roomParams.roundNumber);
+        } else {
+            questions = await fetchQuestions(roomParams.gameMode, roomParams.difficulty, roomParams.roundNumber);
+        }
 
         room = {...room, ...roomParams, questionList: questions, currentQuestion: null, playersChoice: null, questionTarget: null}
-        
+
+        ROOMS.roomList[player.roomCode] = room;
 
         const response: InformationUpdate = {
             type: 'information-update',
