@@ -17,6 +17,8 @@ const wss = new WebSocketServer({ port: 6001 });
 
 dotenv.config();
 
+console.info('Websocket server is ready !');
+
 wss.on('connection', (ws: WebSocket) => {
 
     // ! Ici se sont des variables de session WS qui sont spécifique à notre connexion
