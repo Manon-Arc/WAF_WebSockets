@@ -1,10 +1,10 @@
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import * as dotenv from 'dotenv';
-import {ClientPlayerType, PlayerChoiceType, RoomListType, RoomType, ServerPlayerType} from './type';
-import {catchError, sendAllPlayer} from "../global";
-import {joinWS} from "./wsFunction/joinWS";
-import {createWS} from "./wsFunction/createWS";
-import {quitRoom} from "./wsFunction/quitRoom";
+import { ClientPlayerType, PlayerChoiceType, RoomListType, RoomType, ServerPlayerType } from './type';
+import { catchError, sendAllPlayer } from "../global";
+import { joinWS } from "./wsFunction/joinWS";
+import { createWS } from "./wsFunction/createWS";
+import { quitRoom } from "./wsFunction/quitRoom";
 import { TokenGenerator } from 'ts-token-generator';
 import { nextQuestion } from './wsFunction/nextQuestion';
 import { restartRoom, updateRoom } from './wsFunction/room';
@@ -12,19 +12,19 @@ import { leaveRoom } from './wsFunction/leaveWS';
 
 export const WSS_CONNECTION = new Map<String, WebSocket>();
 export const PLAYERS = new Map<String, ServerPlayerType>();
-export const ROOMS: RoomListType = {roomList: {}};
-const wss = new WebSocket.Server({port: 6001});
+export const ROOMS: RoomListType = { roomList: {} };
+const wss = new WebSocketServer({ port: 6001 });
 
 dotenv.config();
 
 wss.on('connection', (ws: WebSocket) => {
 
     // ! Ici se sont des variables de session WS qui sont spécifique à notre connexion
-    let token: string|null;
+    let token: string | null;
 
     ws.on('message', receiveData => {
         try {
-            const {type, data}: { type: string, data: any } = JSON.parse(receiveData.toString());
+            const { type, data }: { type: string, data: any } = JSON.parse(receiveData.toString());
 
             console.warn("Requête de type " + type + " reçu")
 
@@ -56,13 +56,13 @@ wss.on('connection', (ws: WebSocket) => {
                         console.error('Aucune room associé au player');
                         break;
                     }
-                    sendAllPlayer(null, roomt.playerList,JSON.stringify({
+                    sendAllPlayer(null, roomt.playerList, JSON.stringify({
                         type: 'result',
                         data: {
                             choice: roomt.playersChoice,
                         }
-                    }) );
-                    
+                    }));
+
                     break;
                 case 'update':
                     updateRoom(token!, data);
@@ -91,14 +91,14 @@ wss.on('connection', (ws: WebSocket) => {
                         choice: data.choice
                     })
 
-                    if (room.questionTarget?.every((p: ClientPlayerType)=> !p.status || room.playersChoice?.find((c: PlayerChoiceType)=>c.player.name == p.name))) {
+                    if (room.questionTarget?.every((p: ClientPlayerType) => !p.status || room.playersChoice?.find((c: PlayerChoiceType) => c.player.name == p.name))) {
                         // envoie un message pour indiqué que tous le monde a fait son choix
-                        sendAllPlayer(null, room.playerList,JSON.stringify({
+                        sendAllPlayer(null, room.playerList, JSON.stringify({
                             type: 'result',
                             data: {
                                 choice: room.playersChoice,
                             }
-                        }) );
+                        }));
                     }
                     break;
                 default:
@@ -143,7 +143,7 @@ function connectWs(ws: WebSocket, data: any): string {
     console.log(`Session existante : false`)
     console.log(`Token : ${token}`)
     console.groupEnd()
-   
+
     const messageConnection = {
         type: 'connection',
         data: {
@@ -170,9 +170,9 @@ function reconnectWs(ws: WebSocket, token: string) {
         return;
     }
 
-    ws.send(JSON.stringify({type: 'identity', data: {name: player.name, avatar: player.avatar, token: player.token}}));
+    ws.send(JSON.stringify({ type: 'identity', data: { name: player.name, avatar: player.avatar, token: player.token } }));
 
-    
+
     const room = ROOMS.roomList[player.roomCode];
 
     if (!room) {
@@ -182,5 +182,5 @@ function reconnectWs(ws: WebSocket, token: string) {
 
     console.warn("Reconnection à la room")
 
-    joinWS(ws, {roomCode: room.roomId, player: {name: player.name, avatar: player.avatar, token: player.token, status: player.status}});
+    joinWS(ws, { roomCode: room.roomId, player: { name: player.name, avatar: player.avatar, token: player.token, status: player.status } });
 }
